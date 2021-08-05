@@ -3,7 +3,7 @@ import selectors
 import json
 import io
 import struct
-
+import base64
 
 class Message:
     def __init__(self, selector, sock, addr, request):
@@ -83,7 +83,19 @@ class Message:
     def _process_response_json_content(self):
         content = self.response
         result = content.get("result")
-        print(f"got result: {result}")
+        action = content.get("action")
+        print(f"got result: {result}, action: {action}")
+        if action == "screenshot":
+            #content_encoding = "utf-8"
+            #img = content.get("img")
+            #base64_bytes = img.encode(content_encoding)
+            #message_bytes = base64.b64decode(base64_bytes)
+            #message = message_bytes.decode('ascii')
+            img = content.get("img")
+            imgdata = base64.b64decode(img)
+            filename = 'some_image.png'  # I assume you have a way of picking unique filenames
+            with open(filename, 'wb') as f:
+                f.write(imgdata)
 
     def _process_response_binary_content(self):
         content = self.response
