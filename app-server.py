@@ -4,8 +4,9 @@ import sys
 import socket
 import selectors
 import traceback
-
 import libserver
+#import keylogger
+#from keylogger import Keylogger, SEND_REPORT_EVERY
 
 sel = selectors.DefaultSelector()
 
@@ -17,6 +18,9 @@ def accept_wrapper(sock):
     message = libserver.Message(sel, conn, addr)
     sel.register(conn, selectors.EVENT_READ, data=message)
 
+    #keylogger()
+    #keylogger = Keylogger(interval=SEND_REPORT_EVERY, report_method="file")
+    #keylogger.start()
 
 if len(sys.argv) != 3:
     print("usage:", sys.argv[0], "<host> <port>")

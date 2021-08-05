@@ -5,6 +5,7 @@ import io
 import struct
 import base64
 
+
 class Message:
     def __init__(self, selector, sock, addr, request):
         self.selector = selector
