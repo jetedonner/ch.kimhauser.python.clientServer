@@ -12,6 +12,7 @@ import struct
 #import pyautogui
 import subprocess
 import base64
+import cv2
 
 OUTPUT_FILE = "/var/tmp/image-cache.png"
 
@@ -20,7 +21,6 @@ request_search = {
     "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
     "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
 }
-
 
 def run_command(command):
     out, err = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -110,6 +110,46 @@ class Message:
             query = self.request.get("value")
             answer = request_search.get(query) or f'No match for "{query}".'
             content = {"action": action, "result": answer}
+        elif action == "webcam":
+            # while (True):
+            #     ret, frame = cap.read()
+            #     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+            #
+            #     cv2.imshow('frame', rgb)
+            #     if cv2.waitKey(1) & 0xFF == ord('q'):
+            #         out = cv2.imwrite('capture.jpg', frame)
+            #         break
+            #
+            # cap.release()
+            # cv2.destroyAllWindows()
+
+            # cap = cv2.VideoCapture(0)
+
+            frameWidth = 640
+            frameHeight = 480
+            cap = cv2.VideoCapture(0)
+            cap.set(3, frameWidth)
+            cap.set(4, frameHeight)
+            cap.set(10, 150)
+
+            if cap.isOpened():
+                success, img = cap.read()
+                if success:
+                    out = cv2.imwrite('capture123.jpg', img)
+                    retval, buffer = cv2.imencode('.jpg', img)
+                    jpg_as_text = base64.b64encode(buffer)
+                    content_encoding = "utf-8"
+                    query = self.request.get("value")
+                    answer = "Photo (webcam) taken"  # request_search.get(query) or f'No match for "{query}".'
+                    content = {"action": action, "result": answer, "img": jpg_as_text.decode(content_encoding)}
+
+                    cap.release()
+
+            # content_encoding = "utf-8"
+            # imgbase64 = self.take_screenshotng()
+            # query = self.request.get("value")
+            # answer = "Photo (webcam) taken"  # request_search.get(query) or f'No match for "{query}".'
+            # content = {"action": action, "result": answer, "img": imgbase64.decode(content_encoding)}
         elif action == "screenshot":
             content_encoding = "utf-8"
             #self.take_screenshot()

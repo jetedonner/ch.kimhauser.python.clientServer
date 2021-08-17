@@ -5,7 +5,6 @@ import io
 import struct
 import base64
 
-
 class Message:
     def __init__(self, selector, sock, addr, request):
         self.selector = selector
@@ -87,14 +86,15 @@ class Message:
         action = content.get("action")
         print(f"got result: {result}, action: {action}")
         if action == "screenshot":
-            #content_encoding = "utf-8"
-            #img = content.get("img")
-            #base64_bytes = img.encode(content_encoding)
-            #message_bytes = base64.b64decode(base64_bytes)
-            #message = message_bytes.decode('ascii')
             img = content.get("img")
             imgdata = base64.b64decode(img)
             filename = 'some_image.png'  # I assume you have a way of picking unique filenames
+            with open(filename, 'wb') as f:
+                f.write(imgdata)
+        elif action == "webcam":
+            img = content.get("img")
+            imgdata = base64.b64decode(img)
+            filename = 'some_image_webcam_new.png'  # I assume you have a way of picking unique filenames
             with open(filename, 'wb') as f:
                 f.write(imgdata)
 
